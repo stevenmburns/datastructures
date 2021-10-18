@@ -29,13 +29,10 @@ class AVLTree:
 
 
     def rebalance(self):
-        def d(x):
-            return x.depth if x is not None else 0
-
         if -1 <= self.ldepth - self.rdepth <= 1:
             return self
         else:
-
+            print("Rebalance")
             if self.rdepth > self.ldepth + 1:
                 assert self.rdepth == self.ldepth + 2
                 assert self.r.ldepth != self.r.rdepth
@@ -47,17 +44,6 @@ class AVLTree:
                     AB = self.r.l
                     BC = self.r.r.l
                     C = self.r.r.r
-
-                    a.l = A
-                    a.r = AB
-                    a.depth = 1+max(d(a.l),d(a.r))
-                    c.l = BC
-                    c.r = C
-                    c.depth = 1+max(d(c.l),d(c.r))
-                    b.l = a
-                    b.r = c
-                    b.depth = 1+max(d(b.l),d(b.r))
-                    return b
                 else:
                     a = self
                     b = self.r.l
@@ -67,17 +53,6 @@ class AVLTree:
                     BC = self.r.l.r
                     C = self.r.r
 
-                    a.l = A
-                    a.r = AB
-                    a.depth = 1+max(d(a.l),d(a.r))
-                    c.l = BC
-                    c.r = C
-                    c.depth = 1+max(d(c.l),d(c.r))
-                    b.l = a
-                    b.r = c
-                    b.depth = 1+max(d(b.l),d(b.r))
-                    return b
-
             if self.ldepth > self.rdepth + 1:
                 assert self.ldepth == self.rdepth + 2
                 assert self.l.ldepth != self.l.rdepth
@@ -85,43 +60,34 @@ class AVLTree:
                     c = self
                     b = self.l
                     a = self.l.l
-
                     A  = self.l.l.l
                     AB = self.l.l.r
                     BC = self.l.r
                     C = self.r
-
-                    a.l = A
-                    a.r = AB
-                    a.depth = 1+max(d(a.l),d(a.r))
-                    c.l = BC
-                    c.r = C
-                    c.depth = 1+max(d(c.l),d(c.r))
-                    b.l = a
-                    b.r = c
-                    b.depth = 1+max(d(b.l),d(b.r))
-                    return b
-
                 else:
                     c = self
                     b = self.l.r
                     a = self.l
-
                     A  = self.l.l
                     AB = self.l.r.l
                     BC = self.l.r.r
                     C = self.r
 
-                    a.l = A
-                    a.r = AB
-                    a.depth = 1+max(d(a.l),d(a.r))
-                    c.l = BC
-                    c.r = C
-                    c.depth = 1+max(d(c.l),d(c.r))
-                    b.l = a
-                    b.r = c
-                    b.depth = 1+max(d(b.l),d(b.r))
-                    return b
+            def d(x):
+                return x.depth if x is not None else 0
+
+            a.l = A
+            a.r = AB
+            a.depth = 1+max(d(a.l),d(a.r))
+            c.l = BC
+            c.r = C
+            c.depth = 1+max(d(c.l),d(c.r))
+            b.l = a
+            b.r = c
+            b.depth = 1+max(d(b.l),d(b.r))
+            return b
+
+
 
     def add(self, key):
         """Returns existing pointer if already in the tree; other adds and returrns the new Node"""
@@ -191,6 +157,7 @@ def test_add():
 
     tree = AVLTree(lst[0])
     for x in lst[1:]:
+        print(f"Adding {x}...")
         _, tree = tree.add(x)
 
     print(tree)
