@@ -1,11 +1,15 @@
 import random
 
 class AVLTree:
-    def __init__(self, key, l=None, r=None, depth=1):
-        self.key = key
+    def reuse(self, l=None, r=None):
         self.l = l
         self.r = r
-        self.depth = depth
+        self.depth = self.compute_depth()
+        
+
+    def __init__(self, key, l=None, r=None):
+        self.key = key
+        self.reuse(l, r)
 
     @property
     def ldepth(self):
@@ -14,6 +18,9 @@ class AVLTree:
     @property
     def rdepth(self):
         return self.r.depth if self.r is not None else 0
+
+    def compute_depth(self):
+        return 1 + max(self.ldepth, self.rdepth)
 
     def find(self, key):
         """Returns none if key not in tree; Pointer to tree node otherwise"""
@@ -32,65 +39,38 @@ class AVLTree:
         if -1 <= self.ldepth - self.rdepth <= 1:
             return self
         else:
-            print("Rebalance")
+
             if self.rdepth > self.ldepth + 1:
                 assert self.rdepth == self.ldepth + 2
-                assert self.r.ldepth != self.r.rdepth
-                if self.r.ldepth < self.r.rdepth: # line
-                    a = self
-                    b = self.r
-                    c = self.r.r
-                    A  = self.l
-                    AB = self.r.l
-                    BC = self.r.r.l
-                    C = self.r.r.r
+                if self.r.ldepth <= self.r.rdepth: # line
+                    a, b, c = self, self.r, self.r.r
+                    A, AB, BC, C = self.l, self.r.l, self.r.r.l, self.r.r.r
                 else:
-                    a = self
-                    b = self.r.l
-                    c = self.r
-                    A  = self.l
-                    AB = self.r.l.l
-                    BC = self.r.l.r
-                    C = self.r.r
+                    a, b, c = self, self.r.l, self.r
+                    A, AB, BC, C = self.l, self.r.l.l, self.r.l.r, self.r.r
 
             if self.ldepth > self.rdepth + 1:
                 assert self.ldepth == self.rdepth + 2
-                assert self.l.ldepth != self.l.rdepth
-                if self.l.ldepth > self.l.rdepth: # line
-                    c = self
-                    b = self.l
-                    a = self.l.l
-                    A  = self.l.l.l
-                    AB = self.l.l.r
-                    BC = self.l.r
-                    C = self.r
+                if self.l.ldepth >= self.l.rdepth: # line
+                    a, b, c = self.l.l, self.l, self
+                    A, AB, BC, C  = self.l.l.l, self.l.l.r, self.l.r, self.r
                 else:
-                    c = self
-                    b = self.l.r
-                    a = self.l
-                    A  = self.l.l
-                    AB = self.l.r.l
-                    BC = self.l.r.r
-                    C = self.r
+                    a, b, c = self.l, self.l.r, self
+                    A, AB, BC, C = self.l.l, self.l.r.l, self.l.r.r, self.r
 
-            def d(x):
-                return x.depth if x is not None else 0
+            a.reuse(A,  AB)
+            c.reuse(BC, C)
+            b.reuse(a,  c)
 
-            a.l = A
-            a.r = AB
-            a.depth = 1+max(d(a.l),d(a.r))
-            c.l = BC
-            c.r = C
-            c.depth = 1+max(d(c.l),d(c.r))
-            b.l = a
-            b.r = c
-            b.depth = 1+max(d(b.l),d(b.r))
             return b
 
 
 
     def add(self, key):
-        """Returns existing pointer if already in the tree; other adds and returrns the new Node"""
+        """Returns a pair:
+                first: existing pointer if already in the tree; otherwise new node
+                second: original tree if key already in tree; otherwise new tree with added node
+"""
 
         if key == self.key:
             return self, self
@@ -105,9 +85,10 @@ class AVLTree:
                     new_pointer, self.r = self.r.add(key)
                 else:
                     new_pointer = self.r = AVLTree(key)
-            self.depth = 1+max(self.ldepth, self.rdepth)
+            self.depth = self.compute_depth()
 
             return new_pointer, self.rebalance()
+
 
     def check_depth(self):
         ldepth = self.l.check_depth() if self.l is not None else 0
@@ -126,7 +107,7 @@ class AVLTree:
 
 def test_find():
 
-    tree = AVLTree( 2, AVLTree(0), AVLTree(4), 2)
+    tree = AVLTree( 2, AVLTree(0), AVLTree(4))
 
     assert tree.find(0) is not None
     assert tree.find(2) is not None
@@ -141,7 +122,7 @@ def test_find():
 
 def test_find2():
 
-    tree = AVLTree( 6, AVLTree(2, AVLTree(0), AVLTree(4), 2), AVLTree(8), 3)
+    tree = AVLTree( 6, AVLTree(2, AVLTree(0), AVLTree(4)), AVLTree(8))
 
     for x in range(0,10,2):
         assert tree.find(x) is not None
@@ -153,18 +134,15 @@ def test_find2():
 
 def test_add():
     lst = list(range(10000))
-    #random.shuffle(lst)
+    random.shuffle(lst)
 
     tree = AVLTree(lst[0])
     for x in lst[1:]:
-        print(f"Adding {x}...")
         _, tree = tree.add(x)
 
-    print(tree)
 
     tree.check_depth()
 
     for x in lst:
         assert tree.find(x)
 
-    print(tree.depth)
