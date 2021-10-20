@@ -89,53 +89,29 @@ class AVLTree:
             return new_pointer, self.rebalance()
 
     def remove(self, key):
-        print(f"remove {key}")
         if key == self.key:
-            print(f"found {key} == {self.key}")
-            existing_pointer, new_tree = self, None
-        else:
-            if key < self.key:
-                print(f"left {key} < {self.key}")
-                if self.l is not None:
-                    existing_pointer, self.l = self.l.remove(key)
-                    return existing_pointer, self.rebalance()
-                else:
-                    existing_pointer, new_tree = None, self
-            else:
-                print(f"right {key} > {self.key}")
-                if self.r is not None:
-                    existing_pointer, self.r = self.r.remove(key)
-                    return existing_pointer, self.rebalance()
-                else:
-                    existing_pointer, new_tree = None, self
-
-        if existing_pointer is None:
-            return None, self
-        else:
-            assert key == existing_pointer.key
-
             if self.l is None:
                 new_tree = self.r
             elif self.r is None:
                 new_tree = self.l
             else:
-                print(f'self.r {repr(self.r)}')
-
                 new_tree, new_tree_r = self.r.remove_leftmost()
-
-                print(f'new_tree: {repr(new_tree)} new_tree_r: {repr(new_tree_r)}')
-
                 new_tree.reuse(self.l, new_tree_r)
+            self.reuse(None,None)
+            return self, new_tree.rebalance() if new_tree is not None else None
+        elif key < self.key:
+            if self.l is not None:
+                existing_pointer, self.l = self.l.remove(key)
+                return existing_pointer, self.rebalance()
+            else:
+                return None, self
+        else:
+            if self.r is not None:
+                existing_pointer, self.r = self.r.remove(key)
+                return existing_pointer, self.rebalance()
+            else:
+                return None, self
 
-            #print('SMB', str(new_tree))
-
-            existing_pointer.reuse(None,None)
-                
-            rebalanced_new_tree = new_tree.rebalance() if new_tree is not None else None
-
-            #print(f'returning {str(existing_pointer)} {str(rebalanced_new_tree)}')
-
-            return existing_pointer, rebalanced_new_tree
 
 
     def remove_leftmost(self):
@@ -143,10 +119,9 @@ class AVLTree:
             existing_pointer, self.l = self.l.remove_leftmost()
             return existing_pointer, self.rebalance()
         else:
-            existing_pointer, new_tree = self, self.r
-            existing_pointer.reuse(None, None)
-
-            return existing_pointer, new_tree
+            new_tree = self.r
+            self.reuse(None, None)
+            return self, new_tree
 
     def check_depth(self):
         ldepth = self.l.check_depth() if self.l is not None else 0
@@ -250,7 +225,7 @@ def test_add():
         assert tree.find(x)
 
 def test_add_remove():
-    lst = list(range(100))
+    lst = list(range(10000))
     random.shuffle(lst)
 
     tree = AVLTree(lst[0])
@@ -261,9 +236,7 @@ def test_add_remove():
     tree.check_depth()
 
     for x in lst:
-        print(f"Removing {x}, {tree.__repr__()}")
         node, tree = tree.remove(x)
-        print(str(tree))
         assert node is not None
         assert node.key == x
         assert tree is None or tree.find(x) is None
