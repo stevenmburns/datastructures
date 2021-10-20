@@ -2,7 +2,7 @@ class AVLTree:
     def reuse(self, l=None, r=None):
         self.l = l
         self.r = r
-        self.depth = self.compute_depth()
+        self.height = self.compute_height()
         return self
 
     def __init__(self, key, l=None, r=None):
@@ -10,15 +10,15 @@ class AVLTree:
         self.reuse(l, r)
 
     @property
-    def ldepth(self):
-        return self.l.depth if self.l is not None else 0
+    def lheight(self):
+        return self.l.height if self.l is not None else 0
 
     @property
-    def rdepth(self):
-        return self.r.depth if self.r is not None else 0
+    def rheight(self):
+        return self.r.height if self.r is not None else 0
 
-    def compute_depth(self):
-        return 1 + max(self.ldepth, self.rdepth)
+    def compute_height(self):
+        return 1 + max(self.lheight, self.rheight)
 
     def find(self, key):
         """Returns none if key not in tree; Pointer to tree node otherwise"""
@@ -34,9 +34,9 @@ class AVLTree:
 
 
     def rebalance(self):
-        if self.rdepth > self.ldepth + 1:
-            assert self.rdepth == self.ldepth + 2
-            if self.r.ldepth <= self.r.rdepth: # line
+        if self.rheight > self.lheight + 1:
+            assert self.rheight == self.lheight + 2
+            if self.r.lheight <= self.r.rheight: # line
                 a, b = self, self.r
                 A, AB, B = self.l, self.r.l, self.r.r
                 return b.reuse(a.reuse(A,  AB),  B)
@@ -44,9 +44,9 @@ class AVLTree:
                 a, b, c = self, self.r.l, self.r
                 A, AB, BC, C = self.l, self.r.l.l, self.r.l.r, self.r.r
                 return b.reuse(a.reuse(A,  AB),  c.reuse(BC, C))
-        elif self.ldepth > self.rdepth + 1:
-            assert self.ldepth == self.rdepth + 2
-            if self.l.ldepth >= self.l.rdepth: # line
+        elif self.lheight > self.rheight + 1:
+            assert self.lheight == self.rheight + 2
+            if self.l.lheight >= self.l.rheight: # line
                 b, c = self.l, self
                 B, BC, C  = self.l.l, self.l.r, self.r
                 return b.reuse(B,  c.reuse(BC, C))
@@ -55,7 +55,7 @@ class AVLTree:
                 A, AB, BC, C = self.l.l, self.l.r.l, self.l.r.r, self.r
                 return b.reuse(a.reuse(A,  AB),  c.reuse(BC, C))
         else:
-            self.depth = self.compute_depth()
+            self.height = self.compute_height()
             return self
 
     def add(self, key):
@@ -115,15 +115,15 @@ class AVLTree:
             self.reuse(None, None)
             return self, new_tree
 
-    def check_depth(self):
-        ldepth = self.l.check_depth() if self.l is not None else 0
-        rdepth = self.r.check_depth() if self.r is not None else 0
-        assert self.depth == 1+max(ldepth,rdepth)
+    def check_height(self):
+        lheight = self.l.check_height() if self.l is not None else 0
+        rheight = self.r.check_height() if self.r is not None else 0
+        assert self.height == 1+max(lheight,rheight)
 
         # Balance criteria
-        assert -1 <= ldepth - rdepth <= 1
+        assert -1 <= lheight - rheight <= 1
 
-        return self.depth
+        return self.height
 
 
     def __str__(self):

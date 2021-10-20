@@ -57,7 +57,7 @@ def test_find():
     assert tree.find(3) is None
     assert tree.find(5) is None
 
-    tree.check_depth()
+    tree.check_height()
 
 def test_find2():
 
@@ -69,7 +69,7 @@ def test_find2():
     for x in range(-1,12,2):
         assert tree.find(x) is None
 
-    tree.check_depth()
+    tree.check_height()
 
 def test_add():
     lst = list(range(10000))
@@ -80,7 +80,7 @@ def test_add():
         _, tree = tree.add(x)
 
 
-    tree.check_depth()
+    tree.check_height()
 
     for x in lst:
         assert tree.find(x)
@@ -94,7 +94,7 @@ def test_add_remove():
         _, tree = tree.add(x)
 
 
-    tree.check_depth()
+    tree.check_height()
 
     for x in lst:
         node, tree = tree.remove(x)
