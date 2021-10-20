@@ -39,27 +39,21 @@ class AVLTree:
             if self.r.ldepth <= self.r.rdepth: # line
                 a, b = self, self.r
                 A, AB, B = self.l, self.r.l, self.r.r
-                a.reuse(A,  AB)
-                return b.reuse(a,  B)
+                return b.reuse(a.reuse(A,  AB),  B)
             else:
                 a, b, c = self, self.r.l, self.r
                 A, AB, BC, C = self.l, self.r.l.l, self.r.l.r, self.r.r
-                a.reuse(A,  AB)
-                c.reuse(BC, C)
-                return b.reuse(a,  c)
+                return b.reuse(a.reuse(A,  AB),  c.reuse(BC, C))
         elif self.ldepth > self.rdepth + 1:
             assert self.ldepth == self.rdepth + 2
             if self.l.ldepth >= self.l.rdepth: # line
                 b, c = self.l, self
                 B, BC, C  = self.l.l, self.l.r, self.r
-                c.reuse(BC, C)
-                return b.reuse(B,  c)
+                return b.reuse(B,  c.reuse(BC, C))
             else:
                 a, b, c = self.l, self.l.r, self
                 A, AB, BC, C = self.l.l, self.l.r.l, self.l.r.r, self.r
-                a.reuse(A,  AB)
-                c.reuse(BC, C)
-                return b.reuse(a,  c)
+                return b.reuse(a.reuse(A,  AB),  c.reuse(BC, C))
         else:
             self.depth = self.compute_depth()
             return self
