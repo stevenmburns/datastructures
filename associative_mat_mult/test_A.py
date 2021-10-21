@@ -1,32 +1,32 @@
+import random
 
 def compute_cost( dims):
     """
     (5 x 2) (2 x 7) (7 x 9)
     
-    costs[(0,0)] = 0
-    costs[(1,1)] = 0
-    costs[(2,2)] = 0
+    costs[(0,1)] = 0
+    costs[(1,2)] = 0
+    costs[(2,3)] = 0
 
-    costs[(0,1)] = costs[(0,0)] + (5*2*7) + costs[(1,1)] = 5*2*7
-    costs[(1,2)] = costs[(1,1)] + (2*7*9) + costs[(2,2)] = 2*7*9
+    costs[(0,2)] = costs[(0,1)] + (5*2*7) + costs[(1,2)] = 5*2*7
+    costs[(1,3)] = costs[(1,2)] + (2*7*9) + costs[(2,3)] = 2*7*9
 
-    costs[(0,2)] = min( costs[(0,0)] + (5*2*9) + costs[(1,2)],
-                        costs[(0,1)] + (5*7*9) + costs[(2,2)])
-                 = min( 0 + 5*2*9 + 2*7*9,
-                        5*2*7 + 5*7*9 + 0)
+    costs[(0,3)] = min(costs[(0,1)] + (5*2*9) + costs[(1,3)],
+                       costs[(0,2)] + (5*7*9) + costs[(2,3)])
+                 = min(0 + 5*2*9 + 2*7*9, 5*2*7 + 5*7*9 + 0)
 """
 
     costs = {}
     
     for i in range(len(dims)):
-        costs[(i,i)] = 0
+        costs[(i,i+1)] = 0
 
     for j in range(1,len(dims)):
         for i in range(len(dims)-j):
-            ii = i + j
-            costs[(i,ii)] = min(costs[(i,k)] + costs[(k+1,ii)] + dims[i][0]*dims[k][1]*dims[ii][1] for k in range(i,ii))
+            ii = i + j + 1
+            costs[(i,ii)] = min(costs[(i,k)] + dims[i][0]*dims[k][0]*dims[ii-1][1] + costs[(k,ii)] for k in range(i+1,ii))
 
-    return costs[(0,len(dims)-1)]
+    return costs[(0,len(dims))]
 
 def test_A():
     """
@@ -37,3 +37,11 @@ def test_A():
     assert compute_cost(x) == (5 * 2 * 9) + (2 * 7 * 9)
 
     pass
+
+def test_B():
+    random.seed(47)
+    dims = [random.randrange(1,100) for _ in range(200)]
+    sizes = list(zip(dims[:-1],dims[1:]))
+    print(dims)
+    print(sizes)
+    assert compute_cost(sizes) == 502262
