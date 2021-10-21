@@ -43,23 +43,24 @@ class AVLTree:
 
 
     def rebalance(self):
-        if self.rheight > self.lheight + 1:
-            assert self.rheight == self.lheight + 2
-            match self:
-                case AVLTree(_, A, AVLTree(_, AB, B) as b) as a if b.lheight <= b.rheight:
-                    return b.reuse(a.reuse(A, AB), B)
-                case AVLTree(_, A, AVLTree(_, AVLTree(_, AB, BC) as b, C) as c) as a:
-                    return b.reuse(a.reuse(A, AB), c.reuse(BC, C))
-        elif self.lheight > self.rheight + 1:
-            assert self.lheight == self.rheight + 2
-            match self:
-                case AVLTree(_, AVLTree(_, B, BC) as b, C) as c if b.lheight >= b.rheight:
-                    return b.reuse(B, c.reuse(BC, C))
-                case AVLTree(_, AVLTree(_, A, AVLTree(_, AB, BC) as b) as a, C) as c:
-                    return b.reuse(a.reuse(A, AB), c.reuse(BC, C))
-        else:
-            self.height = self.compute_height()
-            return self
+        match self:
+            case AVLTree(a, A, AVLTree(b, AB, B)) if self.r.lheight <= self.r.rheight and self.rheight > self.lheight + 1:
+                return AVLTree(b, AVLTree(a, A, AB), B) 
+            case AVLTree(_, A,
+                            AVLTree(_, AVLTree(_, AB,
+                                                  BC
+                                       ) as b,
+                                       C
+                            ) as c
+                 ) as a if self.r.lheight > self.r.rheight and self.rheight > self.lheight + 1:
+                return b.reuse(a.reuse(A, AB), c.reuse(BC, C))
+            case AVLTree(_, AVLTree(_, B, BC) as b, C) as c if self.l.lheight >= self.l.rheight and self.lheight > self.rheight + 1:
+                return b.reuse(B, c.reuse(BC, C))
+            case AVLTree(_, AVLTree(_, A, AVLTree(_, AB, BC) as b) as a, C) as c if self.l.lheight < self.l.rheight and self.lheight > self.rheight + 1:
+                return b.reuse(a.reuse(A, AB), c.reuse(BC, C))
+            case _:
+                self.height = self.compute_height()
+                return self
 
     def add(self, key):
         """Returns a pair:
