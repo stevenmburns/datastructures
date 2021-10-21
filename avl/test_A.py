@@ -1,6 +1,7 @@
 import random
 
-from avl import AVLTree
+#from avl import AVLTree
+from avl_py310 import AVLTree
 
 def test_remove_leftmost():
     tree = AVLTree(5, AVLTree(4, None, None), AVLTree(6, None, None))
