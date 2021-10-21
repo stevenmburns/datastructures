@@ -9,14 +9,14 @@ class AVLTree:
     r : Optional['AVLTree'] = None
     height : int = 0
 
-    def reuse(self, l=None, r=None):
+    def __call__(self, l=None, r=None):
         self.l = l
         self.r = r
-        self.height = self.compute_height()
+        self.set_height()
         return self
 
     def __post_init__(self):
-        self.height = self.compute_height()
+        self.set_height()
 
     @property
     def lheight(self):
@@ -26,41 +26,31 @@ class AVLTree:
     def rheight(self):
         return self.r.height if self.r is not None else 0
 
-    def compute_height(self):
-        return 1 + max(self.lheight, self.rheight)
+    def set_height(self):
+        self.height = 1 + max(self.lheight, self.rheight)
+        return self
 
     def find(self, key):
         """Returns none if key not in tree; Pointer to tree node otherwise"""
         if key == self.key:
             return self
         elif key < self.key:
-            if self.l is not None:
-                return self.l.find(key)
+            return self.l.find(key) if self.l is not None else None
         else:
-            if self.r is not None:
-                return self.r.find(key)
-        return None
-
+            return self.r.find(key) if self.r is not None else None
 
     def rebalance(self):
         match self:
             case AVLTree(a, A, AVLTree(b, AB, B)) if self.r.lheight <= self.r.rheight and self.rheight > self.lheight + 1:
                 return AVLTree(b, AVLTree(a, A, AB), B) 
-            case AVLTree(_, A,
-                            AVLTree(_, AVLTree(_, AB,
-                                                  BC
-                                       ) as b,
-                                       C
-                            ) as c
-                 ) as a if self.r.lheight > self.r.rheight and self.rheight > self.lheight + 1:
-                return b.reuse(a.reuse(A, AB), c.reuse(BC, C))
+            case AVLTree(a, A, AVLTree(c, AVLTree(b, AB, BC), C)) if self.r.lheight > self.r.rheight and self.rheight > self.lheight + 1:
+                return AVLTree(b, AVLTree(a, A, AB), AVLTree(c, BC, C))
             case AVLTree(_, AVLTree(_, B, BC) as b, C) as c if self.l.lheight >= self.l.rheight and self.lheight > self.rheight + 1:
-                return b.reuse(B, c.reuse(BC, C))
+                return b(B, c(BC, C))
             case AVLTree(_, AVLTree(_, A, AVLTree(_, AB, BC) as b) as a, C) as c if self.l.lheight < self.l.rheight and self.lheight > self.rheight + 1:
-                return b.reuse(a.reuse(A, AB), c.reuse(BC, C))
+                return b(a(A, AB), c(BC, C))
             case _:
-                self.height = self.compute_height()
-                return self
+                return self.set_height()
 
     def add(self, key):
         """Returns a pair:
@@ -92,8 +82,8 @@ class AVLTree:
                 new_tree = self.l
             else:
                 new_tree, new_tree_r = self.r.remove_leftmost()
-                new_tree.reuse(self.l, new_tree_r)
-            self.reuse(None,None)
+                new_tree(self.l, new_tree_r)
+            self(None,None)
             return self, new_tree.rebalance() if new_tree is not None else None
         elif key < self.key:
             if self.l is not None:
@@ -116,7 +106,7 @@ class AVLTree:
             return existing_pointer, self.rebalance()
         else:
             new_tree = self.r
-            self.reuse(None, None)
+            self(None, None)
             return self, new_tree
 
     def check_height(self):
