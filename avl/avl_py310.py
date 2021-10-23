@@ -40,11 +40,12 @@ class AVLTree:
             return self.r.find(key) if self.r is not None else None
 
     def rebalance(self):
+        assert -2 <= self.rheight - self.lheight <= 2
         match self:
-            case AVLTree(a, A, AVLTree(b, AB, B)) if self.r.lheight <= self.r.rheight and self.rheight > self.lheight + 1:
-                return AVLTree(b, AVLTree(a, A, AB), B) 
-            case AVLTree(a, A, AVLTree(c, AVLTree(b, AB, BC), C)) if self.r.lheight > self.r.rheight and self.rheight > self.lheight + 1:
-                return AVLTree(b, AVLTree(a, A, AB), AVLTree(c, BC, C))
+            case AVLTree(_, A, AVLTree(_, AB, B) as b) as a if self.r.lheight <= self.r.rheight and self.rheight > self.lheight + 1:
+                return b(a(A, AB), B) 
+            case AVLTree(_, A, AVLTree(_, AVLTree(_, AB, BC) as b, C) as c) as a if self.r.lheight > self.r.rheight and self.rheight > self.lheight + 1:
+                return b(a(A, AB), c(BC, C))
             case AVLTree(_, AVLTree(_, B, BC) as b, C) as c if self.l.lheight >= self.l.rheight and self.lheight > self.rheight + 1:
                 return b(B, c(BC, C))
             case AVLTree(_, AVLTree(_, A, AVLTree(_, AB, BC) as b) as a, C) as c if self.l.lheight < self.l.rheight and self.lheight > self.rheight + 1:
@@ -57,7 +58,6 @@ class AVLTree:
                 first: existing pointer if already in the tree; otherwise new node
                 second: original tree if key already in tree; otherwise new tree with added node
 """
-
         if key == self.key:
             return self, self
         else:
@@ -71,7 +71,6 @@ class AVLTree:
                     new_pointer, self.r = self.r.add(key)
                 else:
                     new_pointer = self.r = AVLTree(key)
-
             return new_pointer, self.rebalance()
 
     def remove(self, key):
@@ -83,8 +82,8 @@ class AVLTree:
             else:
                 new_tree, new_tree_r = self.r.remove_leftmost()
                 new_tree(self.l, new_tree_r)
-            self(None,None)
-            return self, new_tree.rebalance() if new_tree is not None else None
+            # call with no arguments sets l and r subtrees to null
+            return self(), new_tree.rebalance() if new_tree is not None else None
         elif key < self.key:
             if self.l is not None:
                 existing_pointer, self.l = self.l.remove(key)
@@ -98,24 +97,20 @@ class AVLTree:
             else:
                 return None, self
 
-
-
     def remove_leftmost(self):
         if self.l is not None:
             existing_pointer, self.l = self.l.remove_leftmost()
             return existing_pointer, self.rebalance()
         else:
+            # Need to save because self() will overwrite self.r
             new_tree = self.r
-            self(None, None)
-            return self, new_tree
+            # call with no arguments sets l and r subtrees to null
+            return self(), new_tree
 
     def check_height(self):
-        lheight = self.l.check_height() if self.l is not None else 0
-        rheight = self.r.check_height() if self.r is not None else 0
-        assert self.height == 1+max(lheight,rheight)
-
+        lh = self.l.check_height() if self.l is not None else 0
+        rh = self.r.check_height() if self.r is not None else 0
+        assert self.height == 1+max(lh,rh)
         # Balance criteria
-        assert -1 <= lheight - rheight <= 1
-
+        assert -1 <= lh - rh <= 1
         return self.height
-
