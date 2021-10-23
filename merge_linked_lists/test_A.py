@@ -8,17 +8,8 @@ class ListNode:
     val : int
     next : Optional['ListNode'] = None
 
-class Pair:
-    def __init__(self, val, lst):
-        self.val = val
-        self.lst = lst
-        
-    def __eq__(self, other):
-        return self.val == other.val
-    
-    def __lt__(self, other):
-        return self.val < other.val
-    
+ListNode.__eq__ = lambda self, other: self.val == other.val
+ListNode.__lt__ = lambda self, other: self.val < other.val
 
 from heapq import heappush, heappop
 class Solution:
@@ -26,13 +17,13 @@ class Solution:
         q = []
         for lst in lists:
             if lst is not None:
-                heappush(q, Pair(lst.val, lst))
+                heappush(q, lst)
         root = None
         last = None        
         while q:
-            lst = heappop(q).lst
+            lst = heappop(q)
             if lst.next is not None:
-                heappush(q, Pair(lst.next.val, lst.next))
+                heappush(q, lst.next)
             if last is None:
                 root = lst
                 last = root
