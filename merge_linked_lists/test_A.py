@@ -8,10 +8,12 @@ class ListNode:
     val : int
     next : Optional['ListNode'] = None
 
+ListNode.__slots__ = ['val','next']
+
 ListNode.__eq__ = lambda self, other: self.val == other.val
 ListNode.__lt__ = lambda self, other: self.val < other.val
 
-from heapq import heappush, heappop
+from heapq import heappush, heappop, heapreplace
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
         q = []
@@ -21,9 +23,11 @@ class Solution:
         root = None
         last = None        
         while q:
-            lst = heappop(q)
-            if lst.next is not None:
-                heappush(q, lst.next)
+            if q[0].next is not None:
+                lst = heapreplace(q, q[0].next)
+            else:
+                lst = heappop(q)
+
             if last is None:
                 root = lst
                 last = root
@@ -58,4 +62,8 @@ def toList( u : Optional[ListNode]):
 def test_A():
     lsts = [fromList([0,1]),fromList([0])]
     assert toList(Solution().mergeKLists(lsts)) == [0,0,1]
+
+def test_B():
+    lsts = [fromList([0,1]),fromList([0]),fromList([0,1]),fromList([0]),fromList([0,1])]
+    assert toList(Solution().mergeKLists(lsts)) == [0,0,0,0,0,1,1,1]
     
