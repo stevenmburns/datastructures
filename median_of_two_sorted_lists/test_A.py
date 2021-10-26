@@ -14,11 +14,19 @@ class TwoSortedLists:
         print(self.half,self.lst0, self.lst1)
 
     def __len__(self):
-        return len(self.lst1)
+        return len(self.lst1)+1
 
     def __getitem__(self, idx):
-        return self.half-idx < len(self.lst0) and self.lst1[idx] > self.lst0[self.half-idx]
-
+        x0, x1, y0, y1 = self.values( idx, self.half-idx)
+        if idx < len(self):
+            res = True
+            if y0 and x1 and y0[0] >= x1[0]:
+                res = False
+            if x0 and y1 and x0[0] > y1[0]:
+                res = False
+            return res
+        else:
+            raise StopIteration
 
     def values(self, xsplit, ysplit):
         print( f'ysplit: {ysplit} y0lst: {self.lst0[:ysplit]} y1lst: {self.lst0[ysplit:]}')
@@ -35,25 +43,22 @@ class TwoSortedLists:
 class Solution:
     def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
         tsl = TwoSortedLists( nums1, nums2)
+
+        print([tsl[i] for i in range(len(tsl))])
+
+
         cursor = bisect.bisect( tsl, False)
 
-        xsplit = max(0,cursor-1)
+        xsplit = cursor
         ysplit = tsl.half-xsplit
 
         x0,x1,y0,y1 = tsl.values(xsplit, ysplit)
-        if False and y0 and x1 and y0[0] >= x1[0]:
-            xsplit = cursor
-            ysplit = tsl.half-xsplit
-            
-            x0,x1,y0,y1 = tsl.values(xsplit, ysplit)
-
         print( f'cursor,x0,x1,y0,y1: {cursor}, {x0}, {x1}, {y0}, {y1} {list(tsl)}')
 
         if x0 and y1:
             assert x0[0] <= y1[0]
         if y0 and x1:
-            pass
-            #assert x1[0] >  y0[0]
+            assert x1[0] >  y0[0]
 
         # There are up to four things to worry about
         if tsl.total % 2 == 1:
@@ -61,13 +66,13 @@ class Solution:
         else:
             return (max(x0 + y0) + min(x1 + y1)) / 2
 
-@example([0],[])
-@example([0,1,2,3,4],[0,1,2])
-@example([1,3],[2])
-@example([1,3],[2,7])
-@example([1,2],[3,4])
-@example([0,0],[0,0])
-@example([0,0],[1])
+#@example([0],[])
+#@example([0,1,2,3,4],[0,1,2])
+#@example([1,3],[2])
+#@example([1,3],[2,7])
+#@example([1,2],[3,4])
+#@example([0,0],[0,0])
+#@example([0,0],[1])
 @example([1,1],[0])
 @given(st.lists(st.sampled_from(range(10)),min_size=1), st.lists(st.sampled_from(range(10)),min_size=0))
 def test_hypo(nums1,nums2):
@@ -86,32 +91,24 @@ def test_hypo(nums1,nums2):
 
     assert Solution().findMedianSortedArrays(nums1, nums2) == ref
 
-def test_three():
-    nums1 = [1, 3]
-    nums2 = [2]
-    assert Solution().findMedianSortedArrays(nums1, nums2) == 2
 
-def test_four():
-    nums1 = [1, 2]
-    nums2 = [3, 4]
-    assert Solution().findMedianSortedArrays(nums1, nums2) == 2.5
+def test_debug():
+    nums1 = [1]
+    nums2 = [0]
+    nums1 = [1,2]
+    nums2 = [3,4]
 
-def test_four_zeros():
-    nums1 = [0, 0]
-    nums2 = [0, 0]
-    assert Solution().findMedianSortedArrays(nums1, nums2) == 0
+    nums1.sort()
+    nums2.sort()
 
-def test_zero_one():
-    nums1 = [0 for _ in range(2)]
-    nums2 = [1 for _ in range(1)]
-    assert Solution().findMedianSortedArrays(nums1, nums2) == 0
+    nums = nums1 + nums2
+    nums.sort()
 
-def test_one_zero():
-    nums1 = [1 for _ in range(2)]
-    nums2 = [0 for _ in range(1)]
-    assert Solution().findMedianSortedArrays(nums1, nums2) == 1
+    h = len(nums)
+    assert h > 0
+    if h % 2 == 1:
+        ref = nums[h//2]
+    else:
+        ref = (nums[h//2-1] + nums[h//2]) / 2
 
-def test_alt():
-    nums1 = [1,3]
-    nums2 = [2,7]
-    assert Solution().findMedianSortedArrays(nums1, nums2) == 2.5
+    assert Solution().findMedianSortedArrays(nums1, nums2) == ref
