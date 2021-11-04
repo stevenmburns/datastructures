@@ -6,55 +6,48 @@ class Solution:
         def toSets(board):
             start = None
             end = None
-            blanks = set()
-            obstacles = set()
+            num_obstacles = 0
             for i, row in enumerate(board):
                 for j, c in enumerate(row):
                     if c == -1:
-                        obstacles.add((i, j))
+                        num_obstacles += 1
                     elif c == 1:
                         start = (i, j)
+                        board[i][j] = 0
                     elif c == 2:
                         end = (i, j)
+                        board[i][j] = 0
                     elif c == 0:
-                        blanks.add((i, j))
+                        pass
                     else:
                         assert False, f"Bad square value at {(i,j)}"
-            return start, end, obstacles, blanks
-
-        def adjacent(m, n, i, j):
-            for ii, jj in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                newi, newj = i + ii, j + jj
-                if 0 <= newi < m and 0 <= newj < n:
-                    yield newi, newj
+            return start, end, num_obstacles
 
         m, n = len(grid), len(grid[0])
 
-        start, end, obstacles, blanks = toSets(grid)
-
-        remaining = blanks.copy()
-        remaining.add(start)
-        remaining.add(end)
+        start, end, num_obstacles = toSets(grid)
 
         count = 0
 
-        def dfs(u, path):
-            #print(f"dfs({u}, {path})")
-            # nonlocal remaining
-            nonlocal count
-            remaining.remove(u)
-            path = path + (u,)
-            if u == end and not remaining:
-                assert len(path) == m * n - len(obstacles)
-                # print(path)
+        count_remaining = m*n - num_obstacles
+
+        def dfs(u):
+            nonlocal count, count_remaining
+            i, j = u
+            grid[i][j] = -1
+            count_remaining -= 1
+            if u == end and count_remaining == 0:
                 count += 1
 
-            for v in adjacent(m, n, *u):
-                if v not in obstacles and v in remaining:
-                    dfs(v, path)
-            remaining.add(u)
+            for newi, newj in [(i, j+1), (i, j-1), (i+1, j), (i-1, j)]:
+                if 0 <= newi < m and 0 <= newj < n:
+                    if grid[newi][newj] == 0:
+                        dfs((newi, newj))
 
-        dfs(start, ())
+            grid[i][j] = 0
+            count_remaining += 1
+
+        dfs(start)
 
         return count
 
@@ -63,3 +56,17 @@ def test_A0():
     grid = [[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 2, -1]]
 
     assert Solution().uniquePathsIII(grid) == 2
+
+
+def test_A1():
+    m, n = 5, 7
+    grid = [[0 for _ in range(n)] for _ in range(m)]
+
+    grid[0][0] = 1
+    grid[m-1][n-1] = 2
+
+    assert Solution().uniquePathsIII(grid) == 1670
+
+
+if __name__ == "__main__":
+    test_A1()
