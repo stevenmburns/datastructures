@@ -11,24 +11,26 @@ class CombinationIteratorReingold:
         self.c = [-1] + list(range(1, self.t+1))
         self.characters = characters
         self.done = False
-        self.j = 1
-        print("----", characters, combinationLength)
+        #print("----", characters, combinationLength)
 
     def next(self) -> str:
         result = ''.join(self.characters[i-1] for i in self.c[1:])
 
-        self.j = self.t
-        while self.c[self.j] == self.n - self.t + self.j:
-            self.j -= 1
+        j = self.t
+        while self.c[j] == self.n - self.t + j:
+            j -= 1
 
-        self.c[self.j] += 1
-        for i in range(self.j+1, self.t+1):
+        self.c[j] += 1
+        for i in range(j+1, self.t+1):
             self.c[i] = self.c[i-1] + 1
+
+        if j == 0:
+            self.done = True
 
         return result
 
     def hasNext(self) -> bool:
-        return self.j != 0
+        return not self.done
 
 
 CombinationIterator = CombinationIteratorReingold
@@ -87,11 +89,13 @@ def test_A0():
 @ given(integers(min_value=1, max_value=5), integers(min_value=1, max_value=5))
 @ example(2, 2)
 def test_A2(u, v):
-    ci = CombinationIterator("abcdefghijk"[:u+v], v)
-    for comb in combinations("abcdefghijk"[:u+v], v):
+    s = "abcdefghijk"[:u+v]
+    print(f'-- {s} {v}')
+    ci = CombinationIterator(s, v)
+    for comb in combinations(s, v):
         assert ci.hasNext()
         comb0 = ci.next()
-        print(comb0, ''.join(comb))
+        #print(comb0, ''.join(comb))
         assert comb0 == ''.join(comb)
 
     assert not ci.hasNext()
