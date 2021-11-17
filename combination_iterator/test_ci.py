@@ -3,12 +3,42 @@ from hypothesis import given, example
 from hypothesis.strategies import integers
 
 
+class CombinationIteratorFun:
+
+    def __init__(self, characters: str, combinationLength: int):
+        self.n = len(characters)
+        self.k = combinationLength
+        self.c = list(range(1, self.k+1))
+        self.characters = characters
+        self.done = False
+        #print("----", characters, combinationLength)
+
+    def next(self) -> str:
+        result = ''.join(self.characters[i-1] for i in self.c)
+
+        j = self.k
+        while j > 0 and self.c[j-1] == self.n - self.k + j:
+            j -= 1
+
+        if j == 0:
+            self.done = True
+        else:
+            self.c[j-1] += 1
+            for i in range(j+1, self.k+1):
+                self.c[i-1] = self.c[i-2] + 1
+
+        return result
+
+    def hasNext(self) -> bool:
+        return not self.done
+
+
 class CombinationIteratorReingold:
 
     def __init__(self, characters: str, combinationLength: int):
         self.n = len(characters)
-        self.t = combinationLength
-        self.c = [-1] + list(range(1, self.t+1))
+        self.k = combinationLength
+        self.c = [-1] + list(range(1, self.k+1))
         self.characters = characters
         self.done = False
         #print("----", characters, combinationLength)
@@ -16,12 +46,12 @@ class CombinationIteratorReingold:
     def next(self) -> str:
         result = ''.join(self.characters[i-1] for i in self.c[1:])
 
-        j = self.t
-        while self.c[j] == self.n - self.t + j:
+        j = self.k
+        while self.c[j] == self.n - self.k + j:
             j -= 1
 
         self.c[j] += 1
-        for i in range(j+1, self.t+1):
+        for i in range(j+1, self.k+1):
             self.c[i] = self.c[i-1] + 1
 
         if j == 0:
@@ -33,7 +63,7 @@ class CombinationIteratorReingold:
         return not self.done
 
 
-CombinationIterator = CombinationIteratorReingold
+CombinationIterator = CombinationIteratorFun
 
 
 class CombinationIteratorKnuth:
