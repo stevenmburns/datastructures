@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 # Definition for singly-linked list.
 
@@ -29,7 +29,7 @@ class Solution:
             head = head.next
         return c
 
-    def split(self, head: Optional[ListNode], k: int) -> (Optional[ListNode], Optional[ListNode]):
+    def split(self, head: Optional[ListNode], k: int) -> Tuple[Optional[ListNode], Optional[ListNode]]:
         header = ListNode()
         header.next = head
         u = header

@@ -1,27 +1,27 @@
 # Definition for singly-linked list.
 
+from heapq import heappush, heappop, heapreplace
 from dataclasses import dataclass
 from typing import Optional, List
 
+
 @dataclass
 class ListNode:
-    val : int
-    next : Optional['ListNode'] = None
+    val: int
+    next: Optional['ListNode'] = None
 
-ListNode.__slots__ = ['val','next']
+    def __lt__(self, other: Optional['ListNode']) -> bool:
+        return self.val < other.val
 
-ListNode.__eq__ = lambda self, other: self.val == other.val
-ListNode.__lt__ = lambda self, other: self.val < other.val
 
-from heapq import heappush, heappop, heapreplace
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
-        q = []
+        q: List[Optional[ListNode]] = []
         for lst in lists:
             if lst is not None:
                 heappush(q, lst)
         root = None
-        last = None        
+        last = None
         while q:
             if q[0].next is not None:
                 lst = heapreplace(q, q[0].next)
@@ -37,10 +37,8 @@ class Solution:
             last.next = None
         return root
 
- 
 
-    
-def fromList( lst):
+def fromList(lst):
     if lst:
         root = ListNode(lst[0])
         last = root
@@ -52,18 +50,20 @@ def fromList( lst):
         return None
 
 
-def toList( u : Optional[ListNode]):
+def toList(u: Optional[ListNode]):
     x = []
     while u is not None:
         x.append(u.val)
         u = u.next
     return x
 
+
 def test_A():
-    lsts = [fromList([0,1]),fromList([0])]
-    assert toList(Solution().mergeKLists(lsts)) == [0,0,1]
+    lsts = [fromList([0, 1]), fromList([0])]
+    assert toList(Solution().mergeKLists(lsts)) == [0, 0, 1]
+
 
 def test_B():
-    lsts = [fromList([0,1]),fromList([0]),fromList([0,1]),fromList([0]),fromList([0,1])]
-    assert toList(Solution().mergeKLists(lsts)) == [0,0,0,0,0,1,1,1]
-    
+    lsts = [fromList([0, 1]), fromList([0]), fromList(
+        [0, 1]), fromList([0]), fromList([0, 1])]
+    assert toList(Solution().mergeKLists(lsts)) == [0, 0, 0, 0, 0, 1, 1, 1]
