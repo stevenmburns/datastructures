@@ -3,29 +3,54 @@ from hypothesis import given, example
 from hypothesis.strategies import integers
 
 
-class CombinationIteratorFun:
+class CombinationIterator:
 
     def __init__(self, characters: str, combinationLength: int):
         self.n = len(characters)
         self.k = combinationLength
-        self.c = list(range(1, self.k+1))
+        self.c = list(range(self.k))
+        self.characters = characters
+        self.done = False
+
+    def next(self) -> str:
+        result = ''.join(self.characters[i] for i in self.c)
+
+        for j in range(self.k-1, -1, -1):
+            if self.c[j] < self.n-self.k+j:
+                self.c[j:] = range(self.c[j]+1, self.c[j]+1+self.k-j)
+                break
+        else:
+            self.done = True
+
+        return result
+
+    def hasNext(self) -> bool:
+        return not self.done
+
+
+class CombinationIteratorFun0:
+
+    def __init__(self, characters: str, combinationLength: int):
+        self.n = len(characters)
+        self.k = combinationLength
+        self.c = list(range(self.k))
         self.characters = characters
         self.done = False
         #print("----", characters, combinationLength)
 
     def next(self) -> str:
-        result = ''.join(self.characters[i-1] for i in self.c)
+        result = ''.join(self.characters[i] for i in self.c)
 
-        j = self.k
-        while j > 0 and self.c[j-1] == self.n - self.k + j:
+        j = self.k - 1
+        while j >= 0 and self.c[j] == self.n - self.k + j:
             j -= 1
 
-        if j == 0:
+        if j == -1:
             self.done = True
         else:
-            self.c[j-1] += 1
-            for i in range(j+1, self.k+1):
-                self.c[i-1] = self.c[i-2] + 1
+            self.c[j] += 1
+            for i in range(j+1, self.k):
+                self.c[i] = self.c[i-1] + 1
 
         return result
 
@@ -61,9 +86,6 @@ class CombinationIteratorReingold:
 
     def hasNext(self) -> bool:
         return not self.done
-
-
-CombinationIterator = CombinationIteratorFun
 
 
 class CombinationIteratorKnuth:
