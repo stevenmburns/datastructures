@@ -1,5 +1,5 @@
 from typing import List
-from itertools import combinations
+from itertools import combinations, product
 from hypothesis import given, example
 from hypothesis.strategies import integers, lists, sampled_from
 from collections import deque
@@ -33,6 +33,52 @@ class SolutionCheat:
         print('Cheat', nums, r)
 
         return len(r)
+
+
+class SolutionAcceptable:
+    def largestDivisibleSubset(self, nums: List[int]) -> List[int]:
+        nums.sort()
+        p = [(1, None) for _ in nums]
+        for i in range(len(nums)):
+            for j in range(i):
+                if nums[i] % nums[j] == 0:
+                    p[i] = max(p[i], (p[j][0] + 1, j))
+
+        res = deque()
+        i = max(enumerate(p), key=lambda x: x[1][0])[0]
+
+        while i is not None:
+            res.appendleft(nums[i])
+            i = p[i][1]
+
+        print('Accectable', nums, res)
+
+        return len(res)
+
+
+class SolutionExceedsExpectation:
+    def largestDivisibleSubset(self, nums: List[int]) -> List[int]:
+        nums.sort()
+        p = [None for _ in nums]
+        c = [1 for _ in nums]
+        for i in range(len(nums)):
+            for j in range(i):
+                if nums[i] % nums[j] == 0:
+                    cand = c[j] + 1
+                    if cand > c[i]:
+                        p[i] = j
+                        c[i] = cand
+
+        res = deque()
+        i = max(enumerate(c), key=lambda x: x[1])[0]
+
+        while i is not None:
+            res.appendleft(nums[i])
+            i = p[i]
+
+        print('Accectable', nums, res)
+
+        return len(res)
 
 
 class SolutionGraph:
@@ -85,16 +131,14 @@ class SolutionGraph:
                 if bcounts[j] == 0:
                     q.append(j)
 
-        best_value, best_idx = max(
-            ((d, i) for i, d in enumerate(delays) if d is not None))
+        best_idx = max(enumerate(delays), key=lambda p: p[1])[0]
 
         result = deque()
 
         while True:
             result.appendleft(nums[best_idx])
             for j in bedges_gen(best_idx):
-                if delays[j] == best_value - 1:
-                    best_value -= 1
+                if delays[j] + 1 == delays[best_idx]:
                     best_idx = j
                     break
             else:
@@ -106,9 +150,9 @@ class SolutionGraph:
 
 
 @given(lists(integers(min_value=1, max_value=100), min_size=1, max_size=20))
-@example(list(1 << i for i in range(100)))
+@example(list(1 << i for i in range(4)))
 def test_largest_divisible_subset(nums):
     nums = list(set(nums))
     l0 = SolutionCheat().largestDivisibleSubset(nums)
-    l1 = SolutionGraph().largestDivisibleSubset(nums)
+    l1 = SolutionAcceptable().largestDivisibleSubset(nums)
     assert l0 == l1
