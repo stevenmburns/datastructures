@@ -1,6 +1,7 @@
 from typing import List
 from collections import defaultdict, Counter
 from itertools import combinations, product
+from bisect import bisect_left, bisect_right
 
 class SolutionTroll:
     def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
@@ -35,17 +36,24 @@ class Solution:
                     result.add( (cand, cand, cand, cand) )
 
         nums = []
-        for k,v in histo.items():
+        for k,v in sorted(histo.items()):
             nums.extend([k]*min(3, v))
 
-        pairwise_sums = defaultdict(list)
-        for i,j in combinations(range(len(nums)),2):
-            pairwise_sums[nums[i] + nums[j]].append((i,j))
+        lb, ub = bisect_left(nums, target // 2), bisect_right(nums, target // 2)
+        print(lb, ub, nums[:lb], nums[ub:])
 
-        for k0 in pairwise_sums.keys():
+        pairwise_sums0 = defaultdict(list)
+        for i,j in combinations(range(0,ub),2):
+            pairwise_sums0[nums[i] + nums[j]].append((i,j))
+
+        pairwise_sums1 = defaultdict(list)
+        for i,j in combinations(range(lb,len(nums)),2):
+            pairwise_sums1[nums[i] + nums[j]].append((i,j))
+
+        for k0 in pairwise_sums0.keys():
             k1 = target - k0
-            if k0 <= k1 and k1 in pairwise_sums:
-                for p, q in product(pairwise_sums[k0], pairwise_sums[k1]):
+            if k0 <= k1 and k1 in pairwise_sums1:
+                for p, q in product(pairwise_sums0[k0], pairwise_sums1[k1]):
 
                     quad = p + q
                     if 4 == len(set(quad)):
@@ -54,11 +62,11 @@ class Solution:
 
         return [list(fs) for fs in result]
 
+def canonize(lst_of_lsts):
+    return sorted([sorted(fs) for fs in lst_of_lsts])
 
 def test_A0():
-
-    def canonize(lst_of_lsts):
-        return sorted([sorted(fs) for fs in lst_of_lsts])
-
-
     assert canonize(Solution().fourSum([1,0,-1,0,-2,2], 0)) == canonize([[-2,-1,1,2], [-2,0,0,2], [-1,0,0,1]])
+
+def test_A1():
+    assert canonize(Solution().fourSum([-1,0,1,2,-1,-4], -1)) == canonize([[-4,0,1,2],[-1,-1,0,1]])
