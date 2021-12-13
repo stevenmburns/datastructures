@@ -18,9 +18,11 @@ class SolutionTroll:
         return M
 
 
-class Solution:
+class SolutionAcceptable:
     def maxProduct(self, nums: List[int]) -> int:
         M = nums[0]
+
+
         s = [nums[0]]
 
         for x in nums[1:]:
@@ -38,6 +40,14 @@ class Solution:
 
             M = max(s + [M])
                 
+        return M
+
+class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        M = p = n = nums[0]
+        for x in nums[1:]:
+            p, n = max(x, x * p, x * n), min(x, x*p, x * n)
+            M = max(p, M)  
         return M
 
 
