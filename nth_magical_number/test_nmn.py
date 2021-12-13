@@ -12,6 +12,28 @@ def gen_s(a, b):
     s = list(sorted(set(chain(range(0, l, a), range(0, l, b)))))
     return s
 
+class SExceedsExpectations:
+    def __init__(self, a, b, l):
+        self.a, self.b = a, b
+        self.l = l
+        self.ls = self.l // a + self.l // b - 1
+
+
+    def __len__(self):
+        return self.ls
+
+
+    def __getitem__(self, i):
+        if not (0 <= i < self.ls):
+            raise IndexError
+            
+        def roundup( u, v):
+            return (u + v - 1)//v
+
+        ss = roundup(i*self.a*self.b, self.a+self.b)
+        
+        return min(self.a*roundup(ss, self.a), self.b*roundup(ss, self.b))
+
 class STroll:
     def __init__(self, a, b):
         self.l = math.lcm(a, b)
@@ -109,7 +131,7 @@ def test_S1():
 class Solution:
     def nthMagicalNumber(self, n: int, a: int, b: int) -> int:
         l = math.lcm(a, b)
-        s = S(a, b)
+        s = SExceedsExpectations(a, b, l)
         q, r = divmod(n, len(s))
         return (q*l + s[r])%(10**9 + 7)
 
