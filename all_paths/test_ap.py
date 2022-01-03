@@ -1,9 +1,10 @@
 from typing import List
-from collections import defaultdict
+
 
 class SolutionTroll:
     def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
-        final = len(graph) -1
+        final = len(graph) - 1
+
         def aux(path):
             u = path[-1]
             if u == final:
@@ -19,12 +20,13 @@ class SolutionAcceptable:
     def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
         final = len(graph) - 1
 
-        bedges = [ [] for _ in range(len(graph)) ]
+        bedges = [[] for _ in range(len(graph))]
         for u, v in enumerate(graph):
             for vv in v:
                 bedges[vv].append(u)
 
         reached = {}
+
         def bdfs(v):
             reached[v] = True
             for u in bedges[v]:
@@ -44,16 +46,18 @@ class SolutionAcceptable:
 
         return list(aux([0]))
 
-class Solution:
+
+class SolutionUnknown:
     def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
         final = len(graph) - 1
 
-        bedges = [ [] for _ in range(len(graph)) ]
+        bedges = [[] for _ in range(len(graph))]
         for u, v in enumerate(graph):
             for vv in v:
                 bedges[vv].append(u)
 
         reached = {}
+
         def bdfs(v):
             reached[v] = True
             for u in bedges[v]:
@@ -78,16 +82,18 @@ class Solution:
 
         return list(aux())
 
+
 class Solution:
     def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
         final = len(graph) - 1
 
-        bedges = [ [] for _ in range(len(graph)) ]
+        bedges = [[] for _ in range(len(graph))]
         for u, v in enumerate(graph):
             for vv in v:
                 bedges[vv].append(u)
 
         reached = {}
+
         def bdfs(v):
             reached[v] = True
             for u in bedges[v]:
@@ -113,11 +119,10 @@ class Solution:
         return aux()
 
 
-
 def test_A0():
     """Test all paths from source to destination"""
-    res = Solution().allPathsSourceTarget([[1,2], [3], [3], []])
-    assert set( tuple(lst) for lst in res) == set([(0,1,3),(0,2,3)])
+    res = Solution().allPathsSourceTarget([[1, 2], [3], [3], []])
+    assert set(tuple(lst) for lst in res) == set([(0, 1, 3), (0, 2, 3)])
 
 
 def test_A1():
@@ -125,7 +130,7 @@ def test_A1():
     n = 3*m + 2
     graph = [[] for _ in range(n)]
 
-    for i in range(3,3*m+1,3):
+    for i in range(3, 3*m+1, 3):
         graph[i-3].append(i-2)
         graph[i-3].append(i-1)
         graph[i-2].append(i)
@@ -134,6 +139,3 @@ def test_A1():
     graph[0].append(n-1)
 
     assert list(Solution().allPathsSourceTarget(graph)) == [[0, n-1]]
-
-
-

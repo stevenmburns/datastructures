@@ -36,10 +36,11 @@ class SolutionTroll:
 class Solution:
     def findMinHeightTrees(self, n, E):
         if not E: return [0]
-        G = defaultdict(set)
+
+        G = [[] for _ in range(n)]
         for u,v in E:
-            G[u].add(v)
-            G[v].add(u)
+            G[u].append(v)
+            G[v].append(u)
             
         in_degree = [len(G[i]) for i in range(n)]
         leaves = [idx for idx,d in enumerate(in_degree) if d == 1]
@@ -55,7 +56,7 @@ class Solution:
             leaves = new_leaves
         return leaves
 
-class Solution:
+class SolutionAcceptable:
     def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
         adjacent = defaultdict(list)
         for u, v in edges:
@@ -94,27 +95,12 @@ class Solution:
         l = len(path)
         return [path[l//2]] if l % 2 == 1 else [path[l//2-1], path[l//2]]
 
-class Solution:
+class SolutionExceedsExpectations:
     def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
         adjacent = defaultdict(list)
         for u, v in edges:
             adjacent[u].append(v)
             adjacent[v].append(u)
-
-        # Find node which is farthest from a particular node
-        def farthest(u):
-            visited = set()
-            max_length = (0, u)
-            def aux(u, length):
-                nonlocal max_length, visited
-                visited.add(u)
-                max_length = max(max_length, (length, u))
-                for v in adjacent[u]:
-                    if v not in visited:
-                        aux(v, length+1)
-            aux(u, 0)
-            return max_length
-        #_, a_farthest_node = farthest(0)
 
         def dfs(start):
             visited = set()

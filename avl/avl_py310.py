@@ -2,12 +2,13 @@ from dataclasses import dataclass
 
 from typing import Optional
 
+
 @dataclass
 class AVLTree:
-    key : int
-    l : Optional['AVLTree'] = None
-    r : Optional['AVLTree'] = None
-    height : int = 0
+    key: int
+    l: Optional['AVLTree'] = None
+    r: Optional['AVLTree'] = None
+    height: int = 0
 
     def __call__(self, l=None, r=None):
         self.l = l
@@ -43,7 +44,7 @@ class AVLTree:
         assert -2 <= self.rheight - self.lheight <= 2
         match self:
             case AVLTree(_, A, AVLTree(_, AB, B) as b) as a if self.r.lheight <= self.r.rheight and self.rheight > self.lheight + 1:
-                return b(a(A, AB), B) 
+                return b(a(A, AB), B)
             case AVLTree(_, A, AVLTree(_, AVLTree(_, AB, BC) as b, C) as c) as a if self.r.lheight > self.r.rheight and self.rheight > self.lheight + 1:
                 return b(a(A, AB), c(BC, C))
             case AVLTree(_, AVLTree(_, B, BC) as b, C) as c if self.l.lheight >= self.l.rheight and self.lheight > self.rheight + 1:
@@ -110,7 +111,7 @@ class AVLTree:
     def check_height(self):
         lh = self.l.check_height() if self.l is not None else 0
         rh = self.r.check_height() if self.r is not None else 0
-        assert self.height == 1+max(lh,rh)
+        assert self.height == 1+max(lh, rh)
         # Balance criteria
         assert -1 <= lh - rh <= 1
         return self.height
