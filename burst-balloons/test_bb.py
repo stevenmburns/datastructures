@@ -17,18 +17,13 @@ class Solution:
 
         d = [[0] * (n + 2) for _ in range(n + 2)]
 
-        d = {}
-
-        for i in range(1, n+2):
-            d[(i, i-1)] = 0
-
         for q in range(n):
             for i in range(n-q):
                 j = i + q
                 prod0 = nums[(i-1)+1] * nums[(j+1)+1]
-                d[(i+1, j+1)] = max(d[(i+1, k)] + d[(k+2, j+1)] + prod0 * nums[k+1] for k in range(i, j+1))
+                d[i+1][j+1] = max(d[i+1][k] + d[k+2][j+1] + prod0 * nums[k+1] for k in range(i, j+1))
 
-        return d[(1, n)]
+        return d[1][n]
 
 
 def test_A0():
