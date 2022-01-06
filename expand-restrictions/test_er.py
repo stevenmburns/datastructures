@@ -26,8 +26,8 @@ def merge(r0, r1):
     new_period = math.lcm(r0.period, r1.period)
 
     def gen_pairs(r):
-        for coarse_offset in range(0, r0.period, new_period):
-            for ored_term in r0.ored_terms:
+        for coarse_offset in range(0, r.period, new_period):
+            for ored_term in r.ored_terms:
                 for offset in ored_term.offsets:
                     for scaling in ored_term.scalings:
                         yield (coarse_offset + offset, scaling)
