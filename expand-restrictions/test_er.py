@@ -27,7 +27,7 @@ def merge(r0, r1):
     new_period = math.lcm(r0.period, r1.period)
 
     def gen_pairs(r):
-        for coarse_offset in range(0, r.period, new_period):
+        for coarse_offset in range(0, new_period, r.period):
             for ored_term in r.ored_terms:
                 for offset, scaling in product(ored_term.offsets, ored_term.scalings):
                     yield (coarse_offset + offset, scaling)
@@ -64,7 +64,14 @@ def test_A1():
 
 
 def test_A2():
-    r0 = Restriction(4, [OredTerm([0], [1]), OredTerm([1], [-1])])
+    r0 = Restriction(4, [OredTerm([0], [-1]), OredTerm([1], [1])])
     r1 = Restriction(6, [OredTerm([0, 1, 2], [1, -1])])
+    r = merge(r0, r1)
+    print(r)
+
+
+def test_A3():
+    r0 = Restriction(4, [OredTerm([0, 1], [1])])
+    r1 = Restriction(6, [OredTerm([0, 1, 2], [1])])
     r = merge(r0, r1)
     print(r)
