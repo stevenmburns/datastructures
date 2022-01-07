@@ -2,6 +2,7 @@
 import math
 from dataclasses import dataclass
 from typing import List
+from itertools import product
 
 
 @dataclass
@@ -26,14 +27,16 @@ def merge(r0, r1):
     new_period = math.lcm(r0.period, r1.period)
 
     def gen_pairs(r):
-        for coarse_offset in range(0, r0.period, new_period):
-            for ored_term in r0.ored_terms:
-                for offset in ored_term.offsets:
-                    for scaling in ored_term.scalings:
-                        yield (coarse_offset + offset, scaling)
+        for coarse_offset in range(0, r.period, new_period):
+            for ored_term in r.ored_terms:
+                for offset, scaling in product(ored_term.offsets, ored_term.scalings):
+                    yield (coarse_offset + offset, scaling)
 
     ored_terms0 = set(gen_pairs(r0))
     ored_terms1 = set(gen_pairs(r1))
+
+    print(f'ored_terms0: {ored_terms0}')
+    print(f'ored_terms1: {ored_terms1}')
 
     ored_terms = ored_terms0.intersection(ored_terms1)
 
@@ -54,7 +57,14 @@ def test_A0():
 
 
 def test_A1():
-    r0 = Restriction(2, [OredTerm([0], [1])])
-    r1 = Restriction(3, [OredTerm([1], [1])])
+    r0 = Restriction(4, [OredTerm([0, 1, 3], [1])])
+    r1 = Restriction(6, [OredTerm([0, 1, 2], [1, -1])])
+    r = merge(r0, r1)
+    print(r)
+
+
+def test_A2():
+    r0 = Restriction(4, [OredTerm([0], [1]), OredTerm([1], [-1])])
+    r1 = Restriction(6, [OredTerm([0, 1, 2], [1, -1])])
     r = merge(r0, r1)
     print(r)
