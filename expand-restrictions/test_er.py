@@ -3,6 +3,7 @@ import math
 from dataclasses import dataclass
 from typing import List
 from itertools import product
+from functools import reduce
 
 
 @dataclass
@@ -29,16 +30,28 @@ def simplify(pairs):
     offsets_with_pos_scaling -= offsets_with_both_scalings
     offsets_with_neg_scaling -= offsets_with_both_scalings
     if offsets_with_both_scalings:
-        yield OredTerm(list(sorted(list(offsets_with_both_scalings))), [1, -1])
+        yield OredTerm(sorted(offsets_with_both_scalings), [1, -1])
     if offsets_with_pos_scaling:
-        yield OredTerm(list(sorted(list(offsets_with_pos_scaling))), [1])
+        yield OredTerm(sorted(offsets_with_pos_scaling), [1])
     if offsets_with_neg_scaling:
-        yield OredTerm(list(sorted(list(offsets_with_neg_scaling))), [-1])
+        yield OredTerm(sorted(offsets_with_neg_scaling), [-1])
 
 
-def merge(r0, r1):
+def lcm(*xs):
+    def lcm2(a, b):
+        return (a*b) // math.gcd(a, b)
+    return reduce(lcm2, xs)
 
-    new_period = math.lcm(r0.period, r1.period)
+
+def test_lcm():
+    assert lcm(2, 3) == 6
+    assert lcm(2, 3, 4) == 12
+    assert lcm(2, 3, 4, 5) == 60
+    assert lcm(2, 3, 4, 5, 6) == 60
+
+
+def merge(*rs):
+    new_period = lcm(*(r.period for r in rs))
 
     def gen_pairs(r):
         for coarse_offset in range(0, new_period, r.period):
@@ -46,11 +59,7 @@ def merge(r0, r1):
                 for offset, scaling in product(ored_term.offsets, ored_term.scalings):
                     yield (coarse_offset + offset, scaling)
 
-    pairs0 = set(gen_pairs(r0))
-    pairs1 = set(gen_pairs(r1))
-
-    pairs = pairs0.intersection(pairs1)
-
+    pairs = set.intersection(*(set(gen_pairs(r)) for r in rs))
     return Restriction(new_period, list(simplify(pairs)))
 
 
