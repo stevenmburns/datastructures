@@ -14,40 +14,22 @@ class Solution:
                 if 0 <= jj < n:
                     yield jj
 
-        dp = [[[None for _ in range(n)] for _ in range(n)] for _ in range(m+1)]
-        dp[1][0][n-1] = grid[0][0] + grid[0][n-1]
+        dp0 = [[None for _ in range(n)] for _ in range(n)]
+        dp0[0][n-1] = grid[0][0] + grid[0][n-1]
 
         for i in range(1, m):
+            dp1 = [[None for _ in range(n)] for _ in range(n)]
             for j0, j1 in product(range(n), range(n)):
                 for jj0, jj1 in product(adjacent(j0), adjacent(j1)):
-                    u = dp[i][j0][j1]
+                    u = dp0[j0][j1]
                     if u is not None:
                         delta = (grid[i][jj0] + grid[i][jj1]) if jj0 != jj1 else grid[i][jj0]
-                        v = dp[i+1][jj0][jj1]
+                        v = dp1[jj0][jj1]
                         if v is None or u+delta > v:
-                            dp[i+1][jj0][jj1] = u+delta
+                            dp1[jj0][jj1] = u+delta
+            dp0 = dp1
 
-        res = max((dp[m][j0][j1], (j0, j1)) for j0, j1 in product(range(n), range(n)) if dp[m][j0][j1] is not None)
-
-        print('----')
-        jjj0, jjj1 = res[1]
-        for i in reversed(range(m)):
-            done = False
-            for j0, j1 in product(range(n), range(n)):
-                for jj0, jj1 in product(adjacent(j0), adjacent(j1)):
-                    u = dp[i][j0][j1]
-                    if u is not None:
-                        delta = (grid[i][jj0] + grid[i][jj1]) if jj0 != jj1 else grid[i][jj0]
-                        v = dp[i+1][jj0][jj1]
-                        if v is not None and u+delta == v and jj0 == jjj0 and jj1 == jjj1:
-                            print(i, j0, jj0, j1, jj1, u, delta, v)
-                            jjj0, jjj1 = j0, j1
-                            done = True
-                            break
-                if done:
-                    break
-
-        return res[0]
+        return max(dp0[j0][j1] for j0, j1 in product(range(n), range(n)) if dp0[j0][j1] is not None)
 
 
 def test_A0():
