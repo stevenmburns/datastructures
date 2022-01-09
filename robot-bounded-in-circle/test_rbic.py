@@ -1,6 +1,6 @@
 class Solution:
     def isRobotBounded(self, instructions: str) -> bool:
-        ds = [(0, 1), (-1, 0), (0, -1), (1, 0)]
+        ds = [(0, 1), (-1, 0), (0, -1), (1, 0)]  # NWSE
         x, y = 0, 0
         d = 0
         for c in instructions:
