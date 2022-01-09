@@ -1,43 +1,42 @@
 class Solution:
     def isRobotBounded(self, instructions: str) -> bool:
-        x, y = 0,0
-        dx, dy = 0,1
+        x, y = 0, 0
         Ss = "NWSE"
         Ls = Ss[1:] + Ss[:1]
         Rs = Ss[:1] + Ss[1:]
 
-        ds = { "N" : (0,1), "W": (-1,0), "S": (0,-1), "E": (1,0)}
-        inv_ds = { v: k for k,v in ds.items()}
+        ds = {"N": (0, 1), "W": (-1, 0), "S": (0, -1), "E": (1, 0)}
 
         def LL(d):
-            return ds[Ls[Ss.index(inv_ds[d])]]
+            return Ls[Ss.index(d)]
 
         def RR(d):
-            return ds[Rs[Ss.index(inv_ds[d])]]
+            return Rs[Ss.index(d)]
 
-        L = { (0,1): (-1, 0), (-1,0): (0, -1), (0, -1): (1, 0), (1,0) : (0, 1)}
-        R = { (0,1): (1, 0), (1,0): (0, -1), (0, -1): (-1, 0), (-1,0) : (0, 1)}
-
-
-
-        for c in instructions  * 4:
+        d = 'N'
+        for c in instructions:
             if c == 'G':
+                dx, dy = ds[d]
                 x, y = x + dx, y + dy
             elif c == 'L':
-                dx, dy = LL((dx,dy))
+                d = LL(d)
             elif c == 'R':
-                dx, dy = RR((dx,dy))
+                d = RR(d)
             else:
                 assert False, c
 
-        return (x,y) == (0,0)
+        return (x, y) == (0, 0) or d in "WSE"
 
 
 def test_A0():
     assert Solution().isRobotBounded("GGLLGG")
+
+
 def test_A1():
 
     assert not Solution().isRobotBounded("GG")
+
+
 def test_A2():
 
     assert Solution().isRobotBounded("GL")
