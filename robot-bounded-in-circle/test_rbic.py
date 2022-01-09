@@ -21,10 +21,8 @@ def test_A0():
 
 
 def test_A1():
-
     assert not Solution().isRobotBounded("GG")
 
 
 def test_A2():
-
     assert Solution().isRobotBounded("GL")
