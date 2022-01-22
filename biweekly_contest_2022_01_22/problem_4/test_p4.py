@@ -1,32 +1,12 @@
+from functools import reduce
 
 
 class Solution:
     def numberOfWays(self, corridor: str) -> int:
+        m = 10**9 + 7
         seats = [i for i, x in enumerate(corridor) if x == 'S']
-        if len(seats) % 2 != 0:
-            return 0
-        if not seats:
-            return 0
-
-        diffs = ((i-j) for i, j in zip(seats[1:], seats[:-1]))
-
-        a = list(diffs)[1::2]
-        state = 1
-        for diff in diffs:
-            if state == 1:
-                state = 2
-            elif state == 2:
-                a.append(diff)
-                state = 1
-
-        assert state == 2
-
-        prod = 1
-        for x in a:
-            prod *= x
-            prod %= (10**9 + 7)
-
-        return prod
+        return 0 if not seats or len(seats) % 2 != 0 else \
+            reduce(lambda x, y: x * y % m, [(i - j) for i, j in zip(seats[1:], seats[:-1])][1::2], 1)
 
 
 def test_A0():
