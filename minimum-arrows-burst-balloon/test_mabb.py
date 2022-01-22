@@ -1,16 +1,15 @@
 from typing import List
 
+from functools import reduce
+
 
 class Solution:
     def findMinArrowShots(self, points: List[List[int]]) -> int:
-        r, count = None, 0
-        for s, e in sorted(points):
-            if r is None or s > r[1]:
-                r = [s, e]
-                count += 1
-            else:
-                r = max(r[0], s), min(r[1], e)
-        return count
+        return reduce(
+            lambda x, y: (y[1], x[1] + 1) if x[0] is None or y[0] > x[0] else
+            (y[1], x[1]) if y[1] < x[0] else (x[0], x[1]),
+            sorted(points),
+            (None, 0))[1]
 
 
 def test_A0():
