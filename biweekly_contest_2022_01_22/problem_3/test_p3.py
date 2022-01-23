@@ -9,8 +9,10 @@ class Solution:
                             k: int) -> List[List[int]]:
         m, n = len(grid), len(grid[0])
         reachable = set()
-        frontier = {tuple(start)}
-        dist = {tuple(start): 0}
+        i, j = start
+        frontier, dist = {(i, j)}, []
+        if pricing[0] <= grid[i][j] <= pricing[1]:
+            dist.append(((i, j), 0))
 
         def adjacent(pos):
             i, j = pos
@@ -21,28 +23,20 @@ class Solution:
                         yield ii, jj
 
         count = 0
-        while frontier:
-            newfrontier = set()
-            for i, j in frontier:
-                for ii, jj in adjacent((i, j)):
-                    newfrontier.add((ii, jj))
-
+        while frontier and len(dist) < k:
+            newfrontier = {q for p in frontier for q in adjacent(p)}
             reachable.update(frontier)
             frontier = newfrontier.difference(reachable)
             count += 1
             for i, j in frontier:
-                assert (i, j) not in dist
-                dist[(i, j)] = count
+                if pricing[0] <= grid[i][j] <= pricing[1]:
+                    dist.append(((i, j), count))
 
-        cost_tuples = []
-        for (i, j), v in dist.items():
-            d = v
-            p = grid[i][j]
-            if pricing[0] <= p <= pricing[1]:
-                cost_tuples.append((d, p, i, j))
+        def sort_key(el):
+            (i, j), d = el
+            return d, grid[i][j], i, j
 
-        cost_tuples.sort()
-        return [[i, j] for d, p, i, j in cost_tuples[:k]]
+        return [list(pos) for pos, d in sorted(dist, key=sort_key)[:k]]
 
 
 def test_A0():
