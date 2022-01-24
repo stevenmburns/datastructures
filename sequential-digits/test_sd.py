@@ -17,7 +17,7 @@ def lst_to_int(lst: List[int]) -> int:
 
 
 def gen_sequential_digit_numbers_with_k_digits(k):
-    yield from (lst_to_int(range(i, i + k)) for i in range(1, 11-k))
+    return (lst_to_int(range(i, i + k)) for i in range(1, 11-k))
 
 
 class Solution:
@@ -30,7 +30,7 @@ class Solution:
 
 class SolutionOutstanding:
     def sequentialDigits(self, low: int, high: int) -> List[int]:
-        yield from (n for k in range(log10floor(low) + 1, log10floor(high) + 1 + 1) for n in gen_sequential_digit_numbers_with_k_digits(k) if low <= n <= high)
+        return (n for k in range(log10floor(low) + 1, log10floor(high) + 1 + 1) for n in (reduce(lambda x, y: (x * 10 + y), range(i, i + k)) for i in range(1, 11-k)) if low <= n <= high)
 
 
 Solution = SolutionOutstanding
