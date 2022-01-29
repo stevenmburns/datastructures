@@ -25,17 +25,15 @@ class Solution:
 
         n = (len(tokens)+1) // 2
 
-        tbl = {}
-        for i in range(0, len(tokens), 2):
-            tbl[(i, i)] = {tokens[i]}
+        tbl = {(i, i): [tokens[2*i]] for i in range(n)}
 
-        for k in range(2, len(tokens), 2):
-            for i in range(0, len(tokens)-k, 2):
+        for k in range(1, n):
+            for i in range(n-k):
                 j = i + k
-                tbl[(i, j)] = [ops[tokens[l+1]](u, v) for l in range(i, j, 2)
-                               for u, v in product(tbl[(i, l)], tbl[(l+2, j)])]
+                tbl[(i, j)] = [ops[tokens[2*l+1]](u, v) for l in range(i, j)
+                               for u, v in product(tbl[(i, l)], tbl[(l+1, j)])]
 
-        return tbl[(0, len(tokens)-1)]
+        return tbl[(0, n-1)]
 
 
 def test_A0():
